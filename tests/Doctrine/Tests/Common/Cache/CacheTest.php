@@ -1,21 +1,27 @@
 <?php
 
-namespace Doctrine\Tests\Common\Cache;
+declare(strict_types=1);
 
-use ArrayObject;
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Tests\DoctrineTestCase;
-use stdClass;
+namespace Doctrine\Tests\Common\Cache;
 
 use function array_keys;
 use function array_map;
 use function array_slice;
+
+use ArrayObject;
+use Doctrine\Common\Cache\Cache;
+
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Tests\DoctrineTestCase;
+
 use function is_object;
 use function restore_error_handler;
 use function set_error_handler;
 use function sleep;
 use function sprintf;
+
+use stdClass;
+
 use function str_repeat;
 
 abstract class CacheTest extends DoctrineTestCase

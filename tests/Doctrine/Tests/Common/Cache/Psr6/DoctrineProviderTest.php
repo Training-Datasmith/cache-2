@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -11,17 +13,21 @@
 
 namespace Doctrine\Tests\Common\Cache\Psr6;
 
+use function class_exists;
+
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\Psr6\CacheAdapter;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\Tests\Common\Cache\ArrayCache;
 use Doctrine\Tests\Common\Cache\CacheTest;
+
+use function sprintf;
+
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+
 use Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
-use function class_exists;
-use function sprintf;
 use function sys_get_temp_dir;
 
 class DoctrineProviderTest extends CacheTest

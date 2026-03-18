@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\Common\Cache;
+
+use function assert;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Tests\DoctrineTestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 
-use function assert;
+use PHPUnit_Framework_MockObject_MockObject;
 
 class CacheProviderTest extends DoctrineTestCase
 {

@@ -1,29 +1,36 @@
 <?php
 
-namespace Doctrine\Common\Cache\Psr6;
+declare(strict_types=1);
 
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\ClearableCache;
-use Doctrine\Common\Cache\MultiDeleteCache;
-use Doctrine\Common\Cache\MultiGetCache;
-use Doctrine\Common\Cache\MultiPutCache;
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\DoctrineProvider as SymfonyDoctrineProvider;
+namespace Doctrine\Common\Cache\Psr6;
 
 use function array_key_exists;
 use function assert;
 use function count;
 use function current;
+
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\ClearableCache;
+use Doctrine\Common\Cache\MultiDeleteCache;
+use Doctrine\Common\Cache\MultiGetCache;
+
+use Doctrine\Common\Cache\MultiPutCache;
+
 use function get_class;
 use function gettype;
 use function is_object;
 use function is_string;
 use function microtime;
+
+use const PHP_VERSION_ID;
+
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
+
 use function sprintf;
 use function strpbrk;
 
-use const PHP_VERSION_ID;
+use Symfony\Component\Cache\DoctrineProvider as SymfonyDoctrineProvider;
 
 final class CacheAdapter implements CacheItemPoolInterface
 {

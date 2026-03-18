@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\Common\Cache\Psr6;
+
+use function array_key_exists;
+use function assert;
 
 use Cache\IntegrationTests\CachePoolTest;
 use Doctrine\Common\Cache\Cache;
@@ -9,11 +14,9 @@ use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\Tests\Common\Cache\ArrayCache;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\DoctrineProvider as SymfonyDoctrineProvider;
-
-use function array_key_exists;
-use function assert;
 
 final class CacheAdapterTest extends CachePoolTest
 {
@@ -50,7 +53,7 @@ final class CacheAdapterTest extends CachePoolTest
 
     public function testWithWrappedMinimalCache()
     {
-        $rootCache = new class implements Cache {
+        $rootCache = new class () implements Cache {
             /** @var mixed[] */
             public $values = [];
 

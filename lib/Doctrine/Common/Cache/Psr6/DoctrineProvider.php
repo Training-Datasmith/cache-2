@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -14,10 +16,12 @@ namespace Doctrine\Common\Cache\Psr6;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\CacheProvider;
 use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
-use Symfony\Contracts\Service\ResetInterface;
 
 use function rawurlencode;
+
+use Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
+
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * This class was copied from the Symfony Framework, see the original copyright
