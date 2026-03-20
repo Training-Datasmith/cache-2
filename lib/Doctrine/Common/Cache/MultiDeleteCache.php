@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -11,7 +10,7 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface MultiDeleteCache
+interface Multi_Delete_Cache
 {
     /**
      * Deletes several cache entries.
@@ -20,5 +19,5 @@ interface MultiDeleteCache
      *
      * @return bool TRUE if the operation was successful, FALSE if it wasn't.
      */
-    public function deleteMultiple(array $keys);
+    public function delete_multiple(array $keys);
 }

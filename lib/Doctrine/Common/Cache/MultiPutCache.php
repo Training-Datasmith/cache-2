@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -11,7 +10,7 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface MultiPutCache
+interface Multi_Put_Cache
 {
     /**
      * Returns a boolean value indicating if the operation succeeded.
@@ -22,5 +21,5 @@ interface MultiPutCache
      *
      * @return bool TRUE if the operation was successful, FALSE if it wasn't.
      */
-    public function saveMultiple(array $keysAndValues, $lifetime = 0);
+    public function save_multiple(array $keys_and_values, $lifetime = 0);
 }

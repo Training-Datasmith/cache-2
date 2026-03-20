@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -12,12 +11,12 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface ClearableCache
+interface Clearable_Cache
 {
     /**
      * Deletes all cache entries in the current cache namespace.
      *
      * @return bool TRUE if the cache entries were successfully deleted, FALSE otherwise.
      */
-    public function deleteAll();
+    public function delete_all();
 }

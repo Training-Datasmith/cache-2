@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -9,6 +8,6 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface MultiOperationCache extends MultiGetCache, MultiDeleteCache, MultiPutCache
+interface Multi_Operation_Cache extends Multi_Get_Cache, Multi_Delete_Cache, Multi_Put_Cache
 {
 }

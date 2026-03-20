@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -11,7 +10,7 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface MultiGetCache
+interface Multi_Get_Cache
 {
     /**
      * Returns an associative array of values for keys is found in cache.
@@ -21,5 +20,5 @@ interface MultiGetCache
      * @return mixed[] Array of retrieved values, indexed by the specified keys.
      *                 Values that couldn't be retrieved are not contained in this array.
      */
-    public function fetchMultiple(array $keys);
+    public function fetch_multiple(array $keys);
 }

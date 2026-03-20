@@ -1,169 +1,144 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 use function array_combine;
 use function array_key_exists;
 use function array_map;
 use function sprintf;
-
 /**
  * Base class for cache provider implementations.
  */
-abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, MultiOperationCache
+abstract class Cache_Provider implements Cache, Flushable_Cache, Clearable_Cache, Multi_Operation_Cache
 {
     public const DOCTRINE_NAMESPACE_CACHEKEY = 'DoctrineNamespaceCacheKey[%s]';
-
     /**
      * The namespace to prefix all cache ids with.
      *
      * @var string
      */
     private $namespace = '';
-
     /**
      * The namespace version.
      *
      * @var int|null
      */
-    private $namespaceVersion;
-
+    private $namespace_version;
     /**
      * Sets the namespace to prefix all cache ids with.
      *
      * @param string $namespace
      */
-    public function setNamespace($namespace): void
+    public function set_namespace($namespace): void
     {
-        $this->namespace        = (string) $namespace;
-        $this->namespaceVersion = null;
+        $this->namespace = (string) $namespace;
+        $this->namespace_version = null;
     }
-
     /**
      * Retrieves the namespace that prefixes all cache ids.
      *
      * @return string
      */
-    public function getNamespace()
+    public function get_namespace()
     {
         return $this->namespace;
     }
-
     /**
      * {@inheritdoc}
      */
     public function fetch($id)
     {
-        return $this->doFetch($this->getNamespacedId($id));
+        return $this->do_fetch($this->get_namespaced_id($id));
     }
-
     /**
      * {@inheritdoc}
      */
-    public function fetchMultiple(array $keys)
+    public function fetch_multiple(array $keys)
     {
         if (empty($keys)) {
             return [];
         }
-
         // note: the array_combine() is in place to keep an association between our $keys and the $namespacedKeys
-        $namespacedKeys = array_combine($keys, array_map([$this, 'getNamespacedId'], $keys));
-        $items          = $this->doFetchMultiple($namespacedKeys);
-        $foundItems     = [];
-
+        $namespaced_keys = array_combine($keys, array_map([$this, 'getNamespacedId'], $keys));
+        $items = $this->do_fetch_multiple($namespaced_keys);
+        $found_items = [];
         // no internal array function supports this sort of mapping: needs to be iterative
         // this filters and combines keys in one pass
-        foreach ($namespacedKeys as $requestedKey => $namespacedKey) {
-            if (! isset($items[$namespacedKey]) && ! array_key_exists($namespacedKey, $items)) {
+        foreach ($namespaced_keys as $requested_key => $namespaced_key) {
+            if (!isset($items[$namespaced_key]) && !array_key_exists($namespaced_key, $items)) {
                 continue;
             }
-
-            $foundItems[$requestedKey] = $items[$namespacedKey];
+            $found_items[$requested_key] = $items[$namespaced_key];
         }
-
-        return $foundItems;
+        return $found_items;
     }
-
     /**
      * {@inheritdoc}
      */
-    public function saveMultiple(array $keysAndValues, $lifetime = 0)
+    public function save_multiple(array $keys_and_values, $lifetime = 0)
     {
-        $namespacedKeysAndValues = [];
-        foreach ($keysAndValues as $key => $value) {
-            $namespacedKeysAndValues[$this->getNamespacedId($key)] = $value;
+        $namespaced_keys_and_values = [];
+        foreach ($keys_and_values as $key => $value) {
+            $namespaced_keys_and_values[$this->get_namespaced_id($key)] = $value;
         }
-
-        return $this->doSaveMultiple($namespacedKeysAndValues, $lifetime);
+        return $this->do_save_multiple($namespaced_keys_and_values, $lifetime);
     }
-
     /**
      * {@inheritdoc}
      */
     public function contains($id)
     {
-        return $this->doContains($this->getNamespacedId($id));
+        return $this->do_contains($this->get_namespaced_id($id));
     }
-
     /**
      * {@inheritdoc}
      */
-    public function save($id, $data, $lifeTime = 0)
+    public function save($id, $data, $life_time = 0)
     {
-        return $this->doSave($this->getNamespacedId($id), $data, $lifeTime);
+        return $this->do_save($this->get_namespaced_id($id), $data, $life_time);
     }
-
     /**
      * {@inheritdoc}
      */
-    public function deleteMultiple(array $keys)
+    public function delete_multiple(array $keys)
     {
-        return $this->doDeleteMultiple(array_map([$this, 'getNamespacedId'], $keys));
+        return $this->do_delete_multiple(array_map([$this, 'getNamespacedId'], $keys));
     }
-
     /**
      * {@inheritdoc}
      */
     public function delete($id)
     {
-        return $this->doDelete($this->getNamespacedId($id));
+        return $this->do_delete($this->get_namespaced_id($id));
     }
-
     /**
      * {@inheritdoc}
      */
-    public function getStats()
+    public function get_stats()
     {
-        return $this->doGetStats();
+        return $this->do_get_stats();
     }
-
     /**
      * {@inheritDoc}
      */
-    public function flushAll()
+    public function flush_all()
     {
-        return $this->doFlush();
+        return $this->do_flush();
     }
-
     /**
      * {@inheritDoc}
      */
-    public function deleteAll()
+    public function delete_all()
     {
-        $namespaceCacheKey = $this->getNamespaceCacheKey();
-        $namespaceVersion  = $this->getNamespaceVersion() + 1;
-
-        if ($this->doSave($namespaceCacheKey, $namespaceVersion)) {
-            $this->namespaceVersion = $namespaceVersion;
-
+        $namespace_cache_key = $this->get_namespace_cache_key();
+        $namespace_version = $this->get_namespace_version() + 1;
+        if ($this->do_save($namespace_cache_key, $namespace_version)) {
+            $this->namespace_version = $namespace_version;
             return true;
         }
-
         return false;
     }
-
     /**
      * Prefixes the passed id with the configured namespace value.
      *
@@ -171,36 +146,30 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return string The namespaced id.
      */
-    private function getNamespacedId(string $id): string
+    private function get_namespaced_id(string $id): string
     {
-        $namespaceVersion = $this->getNamespaceVersion();
-
-        return sprintf('%s[%s][%s]', $this->namespace, $id, $namespaceVersion);
+        $namespace_version = $this->get_namespace_version();
+        return sprintf('%s[%s][%s]', $this->namespace, $id, $namespace_version);
     }
-
     /**
      * Returns the namespace cache key.
      */
-    private function getNamespaceCacheKey(): string
+    private function get_namespace_cache_key(): string
     {
         return sprintf(self::DOCTRINE_NAMESPACE_CACHEKEY, $this->namespace);
     }
-
     /**
      * Returns the namespace version.
      */
-    private function getNamespaceVersion(): int
+    private function get_namespace_version(): int
     {
-        if ($this->namespaceVersion !== null) {
-            return $this->namespaceVersion;
+        if ($this->namespace_version !== null) {
+            return $this->namespace_version;
         }
-
-        $namespaceCacheKey      = $this->getNamespaceCacheKey();
-        $this->namespaceVersion = (int) $this->doFetch($namespaceCacheKey) ?: 1;
-
-        return $this->namespaceVersion;
+        $namespace_cache_key = $this->get_namespace_cache_key();
+        $this->namespace_version = (int) $this->do_fetch($namespace_cache_key) ?: 1;
+        return $this->namespace_version;
     }
-
     /**
      * Default implementation of doFetchMultiple. Each driver that supports multi-get should owerwrite it.
      *
@@ -208,22 +177,18 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return mixed[] Array of values retrieved for the given keys.
      */
-    protected function doFetchMultiple(array $keys)
+    protected function do_fetch_multiple(array $keys)
     {
-        $returnValues = [];
-
+        $return_values = [];
         foreach ($keys as $key) {
-            $item = $this->doFetch($key);
-            if ($item === false && ! $this->doContains($key)) {
+            $item = $this->do_fetch($key);
+            if ($item === false && !$this->do_contains($key)) {
                 continue;
             }
-
-            $returnValues[$key] = $item;
+            $return_values[$key] = $item;
         }
-
-        return $returnValues;
+        return $return_values;
     }
-
     /**
      * Fetches an entry from the cache.
      *
@@ -231,8 +196,7 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return mixed|false The cached data or FALSE, if no cache entry exists for the given id.
      */
-    abstract protected function doFetch($id);
-
+    abstract protected function do_fetch($id);
     /**
      * Tests if an entry exists in the cache.
      *
@@ -240,8 +204,7 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return bool TRUE if a cache entry exists for the given cache id, FALSE otherwise.
      */
-    abstract protected function doContains($id);
-
+    abstract protected function do_contains($id);
     /**
      * Default implementation of doSaveMultiple. Each driver that supports multi-put should override it.
      *
@@ -251,21 +214,17 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return bool TRUE if the operation was successful, FALSE if it wasn't.
      */
-    protected function doSaveMultiple(array $keysAndValues, $lifetime = 0)
+    protected function do_save_multiple(array $keys_and_values, $lifetime = 0)
     {
         $success = true;
-
-        foreach ($keysAndValues as $key => $value) {
-            if ($this->doSave($key, $value, $lifetime)) {
+        foreach ($keys_and_values as $key => $value) {
+            if ($this->do_save($key, $value, $lifetime)) {
                 continue;
             }
-
             $success = false;
         }
-
         return $success;
     }
-
     /**
      * Puts data into the cache.
      *
@@ -276,8 +235,7 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return bool TRUE if the entry was successfully stored in the cache, FALSE otherwise.
      */
-    abstract protected function doSave($id, $data, $lifeTime = 0);
-
+    abstract protected function do_save($id, $data, $life_time = 0);
     /**
      * Default implementation of doDeleteMultiple. Each driver that supports multi-delete should override it.
      *
@@ -285,21 +243,17 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return bool TRUE if the operation was successful, FALSE if it wasn't
      */
-    protected function doDeleteMultiple(array $keys)
+    protected function do_delete_multiple(array $keys)
     {
         $success = true;
-
         foreach ($keys as $key) {
-            if ($this->doDelete($key)) {
+            if ($this->do_delete($key)) {
                 continue;
             }
-
             $success = false;
         }
-
         return $success;
     }
-
     /**
      * Deletes a cache entry.
      *
@@ -307,19 +261,17 @@ abstract class CacheProvider implements Cache, FlushableCache, ClearableCache, M
      *
      * @return bool TRUE if the cache entry was successfully deleted, FALSE otherwise.
      */
-    abstract protected function doDelete($id);
-
+    abstract protected function do_delete($id);
     /**
      * Flushes all cache entries.
      *
      * @return bool TRUE if the cache entries were successfully flushed, FALSE otherwise.
      */
-    abstract protected function doFlush();
-
+    abstract protected function do_flush();
     /**
      * Retrieves cached information from the data store.
      *
      * @return mixed[]|null An associative array with server's statistics if available, NULL otherwise.
      */
-    abstract protected function doGetStats();
+    abstract protected function do_get_stats();
 }

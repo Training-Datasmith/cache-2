@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common\Cache;
 
 /**
@@ -9,12 +8,12 @@ namespace Doctrine\Common\Cache;
  *
  * @link   www.doctrine-project.org
  */
-interface FlushableCache
+interface Flushable_Cache
 {
     /**
      * Flushes all cache entries, globally.
      *
      * @return bool TRUE if the cache entries were successfully flushed, FALSE otherwise.
      */
-    public function flushAll();
+    public function flush_all();
 }
