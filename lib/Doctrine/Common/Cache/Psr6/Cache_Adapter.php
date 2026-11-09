@@ -35,7 +35,7 @@ final class Cache_Adapter implements CacheItemPoolInterface
     private $cache;
 
     /** @var array<string, CacheItemInterface> */
-    private array $deferredItems = [];
+    private array $deferred_items = [];
 
     public static function wrap(Cache $cache): CacheItemPoolInterface
     {
@@ -68,9 +68,9 @@ final class Cache_Adapter implements CacheItemPoolInterface
 
     public function getItem(string $key): CacheItemInterface
     {
-        assert(self::validKey($key));
+        assert(self::valid_key($key));
 
-        if (isset($this->deferredItems[$key])) {
+        if (isset($this->deferred_items[$key])) {
             $this->commit();
         }
 
@@ -93,13 +93,13 @@ final class Cache_Adapter implements CacheItemPoolInterface
 
     public function getItems(array $keys = []): iterable
     {
-        if ($this->deferredItems) {
+        if ($this->deferred_items) {
             $this->commit();
         }
 
-        assert(self::validKeys($keys));
+        assert(self::valid_keys($keys));
 
-        $values = $this->doFetchMultiple($keys);
+        $values = $this->do_fetch_multiple($keys);
         $pairs  = [];
 
         if (PHP_VERSION_ID >= 80000) {
@@ -125,9 +125,9 @@ final class Cache_Adapter implements CacheItemPoolInterface
 
     public function hasItem(string $key): bool
     {
-        assert(self::validKey($key));
+        assert(self::valid_key($key));
 
-        if (isset($this->deferredItems[$key])) {
+        if (isset($this->deferred_items[$key])) {
             $this->commit();
         }
 
@@ -136,7 +136,7 @@ final class Cache_Adapter implements CacheItemPoolInterface
 
     public function clear(): bool
     {
-        $this->deferredItems = [];
+        $this->deferred_items = [];
 
         if (! $this->cache instanceof Clearable_Cache) {
             return false;
@@ -147,8 +147,8 @@ final class Cache_Adapter implements CacheItemPoolInterface
 
     public function deleteItem(string $key): bool
     {
-        assert(self::validKey($key));
-        unset($this->deferredItems[$key]);
+        assert(self::valid_key($key));
+        unset($this->deferred_items[$key]);
 
         return $this->cache->delete($key);
     }
@@ -156,11 +156,11 @@ final class Cache_Adapter implements CacheItemPoolInterface
     public function deleteItems(array $keys): bool
     {
         foreach ($keys as $key) {
-            assert(self::validKey($key));
-            unset($this->deferredItems[$key]);
+            assert(self::valid_key($key));
+            unset($this->deferred_items[$key]);
         }
 
-        return $this->doDeleteMultiple($keys);
+        return $this->do_delete_multiple($keys);
     }
 
     public function save(CacheItemInterface $item): bool
@@ -174,60 +174,60 @@ final class Cache_Adapter implements CacheItemPoolInterface
             return false;
         }
 
-        $this->deferredItems[$item->getKey()] = $item;
+        $this->deferred_items[$item->getKey()] = $item;
 
         return true;
     }
 
     public function commit(): bool
     {
-        if (! $this->deferredItems) {
+        if (! $this->deferred_items) {
             return true;
         }
 
         $now         = microtime(true);
-        $itemsCount  = 0;
-        $byLifetime  = [];
-        $expiredKeys = [];
-        $lastKey     = null;
-        $lastItem    = null;
-        $lastLifetime = 0;
+        $items_count  = 0;
+        $by_lifetime  = [];
+        $expired_keys = [];
+        $last_key     = null;
+        $last_item    = null;
+        $last_lifetime = 0;
 
-        foreach ($this->deferredItems as $key => $item) {
+        foreach ($this->deferred_items as $key => $item) {
             $lifetime = ($item->get_expiry() ?? $now) - $now;
 
             if ($lifetime < 0) {
-                $expiredKeys[] = $key;
+                $expired_keys[] = $key;
                 continue;
             }
 
-            ++$itemsCount;
-            $byLifetime[(int) $lifetime][$key] = $item->get();
-            $lastKey      = $key;
-            $lastItem     = $item;
-            $lastLifetime = (int) $lifetime;
+            ++$items_count;
+            $by_lifetime[(int) $lifetime][$key] = $item->get();
+            $last_key      = $key;
+            $last_item     = $item;
+            $last_lifetime = (int) $lifetime;
         }
 
-        $this->deferredItems = [];
+        $this->deferred_items = [];
 
-        switch (count($expiredKeys)) {
+        switch (count($expired_keys)) {
             case 0:
                 break;
             case 1:
-                $this->cache->delete(current($expiredKeys));
+                $this->cache->delete(current($expired_keys));
                 break;
             default:
-                $this->doDeleteMultiple($expiredKeys);
+                $this->do_delete_multiple($expired_keys);
                 break;
         }
 
-        if ($itemsCount === 1 && $lastKey !== null && $lastItem !== null) {
-            return $this->cache->save($lastKey, $lastItem->get(), $lastLifetime);
+        if ($items_count === 1 && $last_key !== null && $last_item !== null) {
+            return $this->cache->save($last_key, $last_item->get(), $last_lifetime);
         }
 
         $success = true;
-        foreach ($byLifetime as $lifetime => $values) {
-            $success = $this->doSaveMultiple($values, $lifetime) && $success;
+        foreach ($by_lifetime as $lifetime => $values) {
+            $success = $this->do_save_multiple($values, $lifetime) && $success;
         }
 
         return $success;
@@ -241,7 +241,7 @@ final class Cache_Adapter implements CacheItemPoolInterface
     /**
      * @param mixed $key
      */
-    private static function validKey($key): bool
+    private static function valid_key($key): bool
     {
         if (! is_string($key)) {
             throw new Invalid_Argument(sprintf('Cache key must be string, "%s" given.', is_object($key) ? get_class($key) : gettype($key)));
@@ -261,10 +261,10 @@ final class Cache_Adapter implements CacheItemPoolInterface
     /**
      * @param mixed[] $keys
      */
-    private static function validKeys(array $keys): bool
+    private static function valid_keys(array $keys): bool
     {
         foreach ($keys as $key) {
-            self::validKey($key);
+            self::valid_key($key);
         }
 
         return true;
@@ -273,7 +273,7 @@ final class Cache_Adapter implements CacheItemPoolInterface
     /**
      * @param mixed[] $keys
      */
-    private function doDeleteMultiple(array $keys): bool
+    private function do_delete_multiple(array $keys): bool
     {
         if ($this->cache instanceof Multi_Delete_Cache) {
             return $this->cache->delete_multiple($keys);
@@ -292,7 +292,7 @@ final class Cache_Adapter implements CacheItemPoolInterface
      *
      * @return mixed[]
      */
-    private function doFetchMultiple(array $keys): array
+    private function do_fetch_multiple(array $keys): array
     {
         if ($this->cache instanceof Multi_Get_Cache) {
             return $this->cache->fetch_multiple($keys);
@@ -312,16 +312,16 @@ final class Cache_Adapter implements CacheItemPoolInterface
     }
 
     /**
-     * @param mixed[] $keysAndValues
+     * @param mixed[] $keys_and_values
      */
-    private function doSaveMultiple(array $keysAndValues, int $lifetime = 0): bool
+    private function do_save_multiple(array $keys_and_values, int $lifetime = 0): bool
     {
         if ($this->cache instanceof Multi_Put_Cache) {
-            return $this->cache->save_multiple($keysAndValues, $lifetime);
+            return $this->cache->save_multiple($keys_and_values, $lifetime);
         }
 
         $success = true;
-        foreach ($keysAndValues as $key => $value) {
+        foreach ($keys_and_values as $key => $value) {
             $success = $this->cache->save($key, $value, $lifetime) && $success;
         }
 

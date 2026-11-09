@@ -25,7 +25,7 @@ final class Typed_Cache_Item implements CacheItemInterface
     public function __construct(
         private string $key,
         private mixed $value,
-        private bool $isHit,
+        private bool $is_hit,
     ) {
     }
 
@@ -41,7 +41,7 @@ final class Typed_Cache_Item implements CacheItemInterface
 
     public function isHit(): bool
     {
-        return $this->isHit;
+        return $this->is_hit;
     }
 
     public function set(mixed $value): static

@@ -26,7 +26,7 @@ final class Cache_Item implements CacheItemInterface
     private $value;
 
     /** @var bool */
-    private $isHit;
+    private $is_hit;
 
     /** @var float|null */
     private $expiry;
@@ -36,11 +36,11 @@ final class Cache_Item implements CacheItemInterface
      *
      * @param mixed $data
      */
-    public function __construct(string $key, $data, bool $isHit)
+    public function __construct(string $key, $data, bool $is_hit)
     {
-        $this->key   = $key;
-        $this->value = $data;
-        $this->isHit = $isHit;
+        $this->key    = $key;
+        $this->value  = $data;
+        $this->is_hit = $is_hit;
     }
 
     public function getKey(): string
@@ -55,7 +55,7 @@ final class Cache_Item implements CacheItemInterface
 
     public function isHit(): bool
     {
-        return $this->isHit;
+        return $this->is_hit;
     }
 
     public function set(mixed $value): static

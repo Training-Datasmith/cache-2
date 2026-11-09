@@ -19,26 +19,26 @@ class Array_Cache extends Cache_Provider
     /** @psalm-var array<string, array{mixed, int|bool}> */
     private array $data = [];
 
-    private int $hitsCount = 0;
+    private int $hits_count = 0;
 
-    private int $missesCount = 0;
+    private int $misses_count = 0;
 
-    private int $upTime;
+    private int $up_time;
 
     public function __construct()
     {
-        $this->upTime = time();
+        $this->up_time = time();
     }
 
     protected function do_fetch($id)
     {
         if (! $this->do_contains($id)) {
-            ++$this->missesCount;
+            ++$this->misses_count;
 
             return false;
         }
 
-        ++$this->hitsCount;
+        ++$this->hits_count;
 
         return $this->data[$id][0];
     }
@@ -60,9 +60,9 @@ class Array_Cache extends Cache_Provider
         return true;
     }
 
-    protected function do_save($id, $data, $lifeTime = 0)
+    protected function do_save($id, $data, $life_time = 0)
     {
-        $this->data[$id] = [$data, $lifeTime ? time() + $lifeTime : false];
+        $this->data[$id] = [$data, $life_time ? time() + $life_time : false];
 
         return true;
     }
@@ -84,9 +84,9 @@ class Array_Cache extends Cache_Provider
     protected function do_get_stats()
     {
         return [
-            Cache::STATS_HITS             => $this->hitsCount,
-            Cache::STATS_MISSES           => $this->missesCount,
-            Cache::STATS_UPTIME           => $this->upTime,
+            Cache::STATS_HITS             => $this->hits_count,
+            Cache::STATS_MISSES           => $this->misses_count,
+            Cache::STATS_UPTIME           => $this->up_time,
             Cache::STATS_MEMORY_USAGE     => null,
             Cache::STATS_MEMORY_AVAILABLE => null,
         ];

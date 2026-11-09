@@ -19,15 +19,15 @@ use Symfony\Component\Cache\DoctrineProvider as SymfonyDoctrineProvider;
 
 final class Cache_Adapter_Test extends CachePoolTest
 {
-    private ?Array_Cache $arrayCache = null;
+    private ?Array_Cache $array_cache = null;
 
     public function createCachePool(): CacheItemPoolInterface
     {
-        if (! $this->arrayCache) {
-            $this->arrayCache = new Array_Cache();
+        if (! $this->array_cache) {
+            $this->array_cache = new Array_Cache();
         }
 
-        return Cache_Adapter::wrap($this->arrayCache);
+        return Cache_Adapter::wrap($this->array_cache);
     }
 
     public function testWithWrappedCache(): void
@@ -63,7 +63,7 @@ final class Cache_Adapter_Test extends CachePoolTest
                 return array_key_exists($id, $this->values);
             }
 
-            public function save($id, $data, $lifeTime = 0)
+            public function save($id, $data, $life_time = 0)
             {
                 $this->values[$id] = $data;
 
