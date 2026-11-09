@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\Tests\Common\Cache;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\Cache_Provider;
 
-class ArrayCacheTest extends CacheTest
+class Array_Cache_Test extends Cache_Test
 {
-    protected function getCacheDriver(): CacheProvider
+    protected function getCacheDriver(): Cache_Provider
     {
-        return new ArrayCache();
+        return new Array_Cache();
     }
 
     public function testGetStats(): void
@@ -28,9 +28,9 @@ class ArrayCacheTest extends CacheTest
         $cache->fetch('test2');
         $cache->fetch('test3');
 
-        $stats = $cache->getStats();
+        $stats = $cache->get_stats();
         self::assertEquals(2, $stats[Cache::STATS_HITS]);
-        self::assertEquals(5, $stats[Cache::STATS_MISSES]); // +1 for internal call to DoctrineNamespaceCacheKey
+        self::assertEquals(5, $stats[Cache::STATS_MISSES]);
         self::assertNotNull($stats[Cache::STATS_UPTIME]);
         self::assertNull($stats[Cache::STATS_MEMORY_USAGE]);
         self::assertNull($stats[Cache::STATS_MEMORY_AVAILABLE]);
@@ -42,9 +42,9 @@ class ArrayCacheTest extends CacheTest
         $cache->fetch('test2');
         $cache->fetch('test3');
 
-        $stats = $cache->getStats();
+        $stats = $cache->get_stats();
         self::assertEquals(2, $stats[Cache::STATS_HITS]);
-        self::assertEquals(8, $stats[Cache::STATS_MISSES]); // +1 for internal call to DoctrineNamespaceCacheKey
+        self::assertEquals(8, $stats[Cache::STATS_MISSES]);
     }
 
     protected function isSharedStorage(): bool

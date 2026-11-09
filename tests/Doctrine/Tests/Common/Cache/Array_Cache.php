@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\Common\Cache;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\Cache_Provider;
 
 use function time;
 
@@ -14,48 +14,36 @@ use function time;
  *
  * @internal
  */
-class ArrayCache extends CacheProvider
+class Array_Cache extends Cache_Provider
 {
-    /** @psalm-var array<string, array{mixed, int|bool}>> $data each element being a tuple of [$data, $expiration], where the expiration is int|bool */
-    private $data = [];
+    /** @psalm-var array<string, array{mixed, int|bool}> */
+    private array $data = [];
 
-    /** @var int */
-    private $hitsCount = 0;
+    private int $hitsCount = 0;
 
-    /** @var int */
-    private $missesCount = 0;
+    private int $missesCount = 0;
 
-    /** @var int */
-    private $upTime;
+    private int $upTime;
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct()
     {
         $this->upTime = time();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFetch($id)
+    protected function do_fetch($id)
     {
-        if (! $this->doContains($id)) {
-            $this->missesCount += 1;
+        if (! $this->do_contains($id)) {
+            ++$this->missesCount;
 
             return false;
         }
 
-        $this->hitsCount += 1;
+        ++$this->hitsCount;
 
         return $this->data[$id][0];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doContains($id)
+    protected function do_contains($id)
     {
         if (! isset($this->data[$id])) {
             return false;
@@ -64,7 +52,7 @@ class ArrayCache extends CacheProvider
         $expiration = $this->data[$id][1];
 
         if ($expiration && $expiration < time()) {
-            $this->doDelete($id);
+            $this->do_delete($id);
 
             return false;
         }
@@ -72,40 +60,28 @@ class ArrayCache extends CacheProvider
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doSave($id, $data, $lifeTime = 0)
+    protected function do_save($id, $data, $lifeTime = 0)
     {
         $this->data[$id] = [$data, $lifeTime ? time() + $lifeTime : false];
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doDelete($id)
+    protected function do_delete($id)
     {
         unset($this->data[$id]);
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doFlush()
+    protected function do_flush()
     {
         $this->data = [];
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doGetStats()
+    protected function do_get_stats()
     {
         return [
             Cache::STATS_HITS             => $this->hitsCount,

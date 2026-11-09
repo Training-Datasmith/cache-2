@@ -7,7 +7,7 @@ namespace Doctrine\Common\Cache;
  * Interface for cache that can be flushed.
  *
  * Intended to be used for partial clearing of a cache namespace. For a more
- * global "flushing", see {@see FlushableCache}.
+ * global "flushing", see {@see Flushable_Cache}.
  *
  * @link   www.doctrine-project.org
  */

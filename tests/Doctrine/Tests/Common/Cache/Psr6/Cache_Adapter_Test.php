@@ -4,72 +4,65 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\Common\Cache\Psr6;
 
-use function array_key_exists;
-use function assert;
-
 use Cache\IntegrationTests\CachePoolTest;
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\Psr6\CacheAdapter;
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
-use Doctrine\Tests\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Psr6\Cache_Adapter;
+use Doctrine\Common\Cache\Psr6\Doctrine_Provider;
+use Doctrine\Tests\Common\Cache\Array_Cache;
+use function array_key_exists;
+
+use PHPUnit\Framework\Attributes\RequiresFunction;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
-
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\DoctrineProvider as SymfonyDoctrineProvider;
 
-final class CacheAdapterTest extends CachePoolTest
+final class Cache_Adapter_Test extends CachePoolTest
 {
-    /** @var ArrayCache */
-    private $arrayCache;
+    private ?Array_Cache $arrayCache = null;
 
     public function createCachePool(): CacheItemPoolInterface
     {
         if (! $this->arrayCache) {
-            $this->arrayCache = new ArrayCache();
+            $this->arrayCache = new Array_Cache();
         }
 
-        return CacheAdapter::wrap($this->arrayCache);
+        return Cache_Adapter::wrap($this->arrayCache);
     }
 
-    public function testWithWrappedCache()
+    public function testWithWrappedCache(): void
     {
         $rootCache = new ArrayAdapter();
-        $wrapped   = DoctrineProvider::wrap($rootCache);
+        $wrapped   = Doctrine_Provider::wrap($rootCache);
 
-        self::assertSame($rootCache, CacheAdapter::wrap($wrapped));
+        self::assertSame($rootCache, Cache_Adapter::wrap($wrapped));
     }
 
-    /**
-     * @requires function Symfony\Component\Cache\DoctrineProvider::__construct
-     */
-    public function testWithWrappedSymfonyCache()
+    #[RequiresFunction('Symfony\Component\Cache\DoctrineProvider::__construct')]
+    public function testWithWrappedSymfonyCache(): void
     {
         $rootCache = new ArrayAdapter();
         $wrapped   = new SymfonyDoctrineProvider($rootCache);
 
-        self::assertSame($rootCache, CacheAdapter::wrap($wrapped));
+        self::assertSame($rootCache, Cache_Adapter::wrap($wrapped));
     }
 
-    public function testWithWrappedMinimalCache()
+    public function testWithWrappedMinimalCache(): void
     {
         $rootCache = new class () implements Cache {
             /** @var mixed[] */
-            public $values = [];
+            public array $values = [];
 
-            /** @inheritdoc **/
             public function fetch($id)
             {
-                return $values[$id] ?? false;
+                return $this->values[$id] ?? false;
             }
 
-            /** @inheritdoc **/
             public function contains($id)
             {
                 return array_key_exists($id, $this->values);
             }
 
-            /** @inheritdoc **/
             public function save($id, $data, $lifeTime = 0)
             {
                 $this->values[$id] = $data;
@@ -77,7 +70,6 @@ final class CacheAdapterTest extends CachePoolTest
                 return true;
             }
 
-            /** @inheritdoc **/
             public function delete($id)
             {
                 unset($this->values[$id]);
@@ -85,16 +77,14 @@ final class CacheAdapterTest extends CachePoolTest
                 return true;
             }
 
-            /** @inheritdoc **/
-            public function getStats()
+            public function get_stats()
             {
                 return null;
             }
         };
 
-        $adapter = CacheAdapter::wrap($rootCache);
-        self::assertInstanceOf(CacheAdapter::class, $adapter);
-        assert($adapter instanceof CacheAdapter);
+        $adapter = Cache_Adapter::wrap($rootCache);
+        self::assertInstanceOf(Cache_Adapter::class, $adapter);
 
         /** @var CacheItemInterface[] $items */
         $items = $adapter->getItems(['1', '2', '3']);
@@ -118,12 +108,12 @@ final class CacheAdapterTest extends CachePoolTest
     {
         $wrapped = $this->createMock(Cache::class);
 
-        $adapter   = CacheAdapter::wrap($wrapped);
+        $adapter   = Cache_Adapter::wrap($wrapped);
         $cacheItem = $adapter->getItem('answer-to-life-universe-everything');
         $cacheItem->set(42);
         $adapter->saveDeferred($cacheItem);
 
-        $wrapped->expects(self::once())
+        $wrapped->expects($this->once())
             ->method('save')
             ->willReturn(true);
 
@@ -135,23 +125,21 @@ final class CacheAdapterTest extends CachePoolTest
     {
         $wrapped = new ArrayAdapter();
 
-        $cacheApp1 = DoctrineProvider::wrap($wrapped);
-        $cacheApp1->setNamespace('app 1');
+        $cacheApp1 = Doctrine_Provider::wrap($wrapped);
+        $cacheApp1->set_namespace('app 1');
 
-        $cacheApp2 = DoctrineProvider::wrap($wrapped);
-        $cacheApp2->setNamespace('app 2');
+        $cacheApp2 = Doctrine_Provider::wrap($wrapped);
+        $cacheApp2->set_namespace('app 2');
 
-        $psrCacheApp1 = CacheAdapter::wrap($cacheApp1);
-        $psrCacheApp2 = CacheAdapter::wrap($cacheApp2);
+        $psrCacheApp1 = Cache_Adapter::wrap($cacheApp1);
+        $psrCacheApp2 = Cache_Adapter::wrap($cacheApp2);
 
         $item = $psrCacheApp1->getItem('some key')->set('some value');
         $psrCacheApp1->save($item);
         self::assertFalse($psrCacheApp2->getItem('some key')->isHit());
     }
 
-    /**
-     * @requires function Symfony\Component\Cache\DoctrineProvider::__construct
-     */
+    #[RequiresFunction('Symfony\Component\Cache\DoctrineProvider::__construct')]
     public function testNamespacingFeatureIsPreservedWithSymfonyDoctrineProvider(): void
     {
         $wrapped = new ArrayAdapter();
@@ -162,8 +150,8 @@ final class CacheAdapterTest extends CachePoolTest
         $cacheApp2 = new SymfonyDoctrineProvider($wrapped);
         $cacheApp2->setNamespace('app 2');
 
-        $psrCacheApp1 = CacheAdapter::wrap($cacheApp1);
-        $psrCacheApp2 = CacheAdapter::wrap($cacheApp2);
+        $psrCacheApp1 = Cache_Adapter::wrap($cacheApp1);
+        $psrCacheApp2 = Cache_Adapter::wrap($cacheApp2);
 
         $item = $psrCacheApp1->getItem('some key')->set('some value');
         $psrCacheApp1->save($item);

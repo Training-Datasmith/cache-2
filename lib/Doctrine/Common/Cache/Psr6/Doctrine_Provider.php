@@ -1,6 +1,7 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -9,14 +10,17 @@ declare (strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Doctrine\Common\Cache\Psr6;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\Cache_Provider;
-use Psr\Cache\Cache_Item_Pool_Interface;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
+use Symfony\Contracts\Service\ResetInterface;
+
 use function rawurlencode;
-use Symfony\Component\Cache\Adapter\Doctrine_Adapter as SymfonyDoctrineAdapter;
-use Symfony\Contracts\Service\Reset_Interface;
+
 /**
  * This class was copied from the Symfony Framework, see the original copyright
  * notice above. The code is distributed subject to the license terms in
@@ -26,44 +30,55 @@ final class Doctrine_Provider extends Cache_Provider
 {
     /** @var CacheItemPoolInterface */
     private $pool;
-    public static function wrap(Cache_Item_Pool_Interface $pool): Cache
+
+    public static function wrap(CacheItemPoolInterface $pool): Cache
     {
         if ($pool instanceof Cache_Adapter) {
             return $pool->get_cache();
         }
-        if ($pool instanceof Symfony_Doctrine_Adapter) {
-            $get_cache = function () {
+
+        if ($pool instanceof SymfonyDoctrineAdapter) {
+            $getCache = function () {
                 // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
                 return $this->provider;
             };
-            return $get_cache->bind_to($pool, Symfony_Doctrine_Adapter::class)();
+
+            return $getCache->bindTo($pool, SymfonyDoctrineAdapter::class)();
         }
+
         return new self($pool);
     }
-    private function __construct(Cache_Item_Pool_Interface $pool)
+
+    private function __construct(CacheItemPoolInterface $pool)
     {
         $this->pool = $pool;
     }
+
     /** @internal */
-    public function get_pool(): Cache_Item_Pool_Interface
+    public function get_pool(): CacheItemPoolInterface
     {
         return $this->pool;
     }
+
     public function reset(): void
     {
-        if ($this->pool instanceof Reset_Interface) {
+        if ($this->pool instanceof ResetInterface) {
             $this->pool->reset();
         }
+
         $this->set_namespace($this->get_namespace());
     }
+
     /**
      * {@inheritdoc}
      */
     protected function do_fetch($id)
     {
-        $item = $this->pool->get_item(rawurlencode($id));
-        return $item->is_hit() ? $item->get() : false;
+        $item = $this->pool->getItem(rawurlencode($id));
+
+        return $item->isHit() ? $item->get() : false;
     }
+
     /**
      * {@inheritdoc}
      *
@@ -71,8 +86,9 @@ final class Doctrine_Provider extends Cache_Provider
      */
     protected function do_contains($id)
     {
-        return $this->pool->has_item(rawurlencode($id));
+        return $this->pool->hasItem(rawurlencode($id));
     }
+
     /**
      * {@inheritdoc}
      *
@@ -80,12 +96,14 @@ final class Doctrine_Provider extends Cache_Provider
      */
     protected function do_save($id, $data, $life_time = 0)
     {
-        $item = $this->pool->get_item(rawurlencode($id));
+        $item = $this->pool->getItem(rawurlencode($id));
         if (0 < $life_time) {
-            $item->expires_after($life_time);
+            $item->expiresAfter($life_time);
         }
+
         return $this->pool->save($item->set($data));
     }
+
     /**
      * {@inheritdoc}
      *
@@ -93,8 +111,9 @@ final class Doctrine_Provider extends Cache_Provider
      */
     protected function do_delete($id)
     {
-        return $this->pool->delete_item(rawurlencode($id));
+        return $this->pool->deleteItem(rawurlencode($id));
     }
+
     /**
      * {@inheritdoc}
      *
@@ -104,6 +123,7 @@ final class Doctrine_Provider extends Cache_Provider
     {
         return $this->pool->clear();
     }
+
     /**
      * {@inheritdoc}
      *

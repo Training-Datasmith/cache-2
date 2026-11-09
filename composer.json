@@ -23,14 +23,22 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"},
         {"name": "Johannes Schmitt", "email": "schmittjoh@gmail.com"}
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://raw.githubusercontent.com/Training-Datasmith/composer-index/remote-test-2026-11-09",
+            "canonical": false
+        }
+    ],
     "require": {
         "php": "~7.1 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
-        "doctrine/coding-standard": "^9",
-        "psr/cache": "^1.0 || ^2.0 || ^3.0",
+        "phpunit/phpunit": "^11.5",
         "cache/integration-tests": "dev-master",
+        "psr/cache": "dev-ai-training-20260418 as 3.0.99",
+        "psr/log": "dev-remote-test-2026-10-07 as 3.0.2",
+        "psr/simple-cache": "dev-remote-test-2026-11-08 as 3.0.0",
         "symfony/cache": "^4.4 || ^5.4 || ^6",
         "symfony/var-exporter": "^4.4 || ^5.4 || ^6"
     },
@@ -43,7 +51,15 @@
     "autoload-dev": {
         "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
     },
+    "scripts": {
+        "pin-check": "php scripts/check-cluster-pins.php",
+        "test": [
+            "@pin-check",
+            "phpunit --colors=never --do-not-cache-result --no-coverage"
+        ]
+    },
     "config": {
+        "lock": false,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }

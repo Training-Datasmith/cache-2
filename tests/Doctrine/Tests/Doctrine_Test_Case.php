@@ -9,6 +9,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Base testcase class for all Doctrine testcases.
  */
-abstract class DoctrineTestCase extends TestCase
+abstract class Doctrine_Test_Case extends TestCase
 {
 }

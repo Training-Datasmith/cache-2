@@ -2,48 +2,36 @@
 
 declare(strict_types=1);
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Doctrine\Tests\Common\Cache\Psr6;
 
-use function class_exists;
-
-use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\Psr6\CacheAdapter;
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
-use Doctrine\Tests\Common\Cache\ArrayCache;
-use Doctrine\Tests\Common\Cache\CacheTest;
-
-use function sprintf;
-
+use Doctrine\Common\Cache\Cache_Provider;
+use Doctrine\Common\Cache\Psr6\Cache_Adapter;
+use Doctrine\Common\Cache\Psr6\Doctrine_Provider;
+use Doctrine\Tests\Common\Cache\Array_Cache;
+use Doctrine\Tests\Common\Cache\Cache_Test;
+use PHPUnit\Framework\Attributes\RequiresFunction;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-
 use Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
+use function class_exists;
+use function sprintf;
 use function sys_get_temp_dir;
 
-class DoctrineProviderTest extends CacheTest
+class Doctrine_Provider_Test extends Cache_Test
 {
-    protected function getCacheDriver(): CacheProvider
+    protected function getCacheDriver(): Cache_Provider
     {
         $pool = new ArrayAdapter();
 
-        return DoctrineProvider::wrap($pool);
+        return Doctrine_Provider::wrap($pool);
     }
 
-    public function testProvider()
+    public function testProvider(): void
     {
         $cache = $this->getCacheDriver();
 
-        $this->assertInstanceOf(CacheProvider::class, $cache);
+        $this->assertInstanceOf(Cache_Provider::class, $cache);
 
         $key = '{}()/\@:';
 
@@ -58,37 +46,37 @@ class DoctrineProviderTest extends CacheTest
         $this->assertFalse($cache->fetch($key));
         $this->assertTrue($cache->save($key, 'bar'));
 
-        $cache->flushAll();
+        $cache->flush_all();
         $this->assertFalse($cache->fetch($key));
         $this->assertFalse($cache->contains($key));
     }
 
-    public function testWithWrappedCache()
+    public function testWithWrappedCache(): void
     {
-        $rootCache = new ArrayCache();
-        $wrapped   = CacheAdapter::wrap($rootCache);
+        $rootCache = new Array_Cache();
+        $wrapped   = Cache_Adapter::wrap($rootCache);
 
-        self::assertSame($rootCache, DoctrineProvider::wrap($wrapped));
+        self::assertSame($rootCache, Doctrine_Provider::wrap($wrapped));
     }
 
-    public function testWithWrappedSymfonyCache()
+    public function testWithWrappedSymfonyCache(): void
     {
         if (! class_exists(SymfonyDoctrineAdapter::class)) {
             self::markTestSkipped('This test requires Symfony 5 or lower.');
         }
 
-        $rootCache = new ArrayCache();
+        $rootCache = new Array_Cache();
         $wrapped   = new SymfonyDoctrineAdapter($rootCache);
 
-        self::assertSame($rootCache, DoctrineProvider::wrap($wrapped));
+        self::assertSame($rootCache, Doctrine_Provider::wrap($wrapped));
     }
 
     public function testGetStats(): void
     {
-        $this->markTestSkipped(sprintf('"%s" does not expose statistics', DoctrineProvider::class));
+        $this->markTestSkipped(sprintf('"%s" does not expose statistics', Doctrine_Provider::class));
     }
 
-    public function testResetArrayAdapter()
+    public function testResetArrayAdapter(): void
     {
         $cache = $this->getCacheDriver();
 
@@ -99,28 +87,22 @@ class DoctrineProviderTest extends CacheTest
         $this->assertSame(false, $cache->fetch('test'));
     }
 
-    public function testResetFilesystemAdapter()
+    public function testResetFilesystemAdapter(): void
     {
         $pool   = new FilesystemAdapter('', 0, sys_get_temp_dir() . '/doctrine-cache-test');
         $pool2  = new FilesystemAdapter('', 0, sys_get_temp_dir() . '/doctrine-cache-test');
-        $cache  = DoctrineProvider::wrap($pool);
-        $cache2 = DoctrineProvider::wrap($pool2);
+        $cache  = Doctrine_Provider::wrap($pool);
+        $cache2 = Doctrine_Provider::wrap($pool2);
 
         $cache->save('test', 'test');
         $cache->reset();
 
-        // we make sure with the next assertion the cache behave like expected and the test is not accidentally changed
-        // to use ArrayAdapter as this test scenario requires a persisted cache adapter
         $this->assertSame('test', $cache->fetch('test'));
 
-        // the second cache instance will now remove all exist files via namespaceVersion still the first cache
-        // will receive the data until then the reset is called. the assertion after deleteAll is not required
-        // but better show why the reset is even needed when cache service is used in long-running processes.
-        $cache2->deleteAll();
+        $cache2->delete_all();
         $this->assertSame('test', $cache->fetch('test'));
         $cache->reset();
 
-        // the previous called reset will reset the namespaceVersion and so the cache is correctly false now
         $this->assertSame(false, $cache->fetch('test'));
     }
 

@@ -1,5 +1,8 @@
 vendor/
 /composer.lock
+.system-test/
+.phpunit-system-test.log
+.phpunit-system-test.junit.xml
 build/
 phpunit.xml
 /.phpunit.result.cache

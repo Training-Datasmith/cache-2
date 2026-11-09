@@ -60,7 +60,7 @@ abstract class Cache_Provider implements Cache, Flushable_Cache, Clearable_Cache
             return [];
         }
         // note: the array_combine() is in place to keep an association between our $keys and the $namespacedKeys
-        $namespaced_keys = array_combine($keys, array_map([$this, 'getNamespacedId'], $keys));
+        $namespaced_keys = array_combine($keys, array_map([$this, 'get_namespaced_id'], $keys));
         $items = $this->do_fetch_multiple($namespaced_keys);
         $found_items = [];
         // no internal array function supports this sort of mapping: needs to be iterative
@@ -103,7 +103,7 @@ abstract class Cache_Provider implements Cache, Flushable_Cache, Clearable_Cache
      */
     public function delete_multiple(array $keys)
     {
-        return $this->do_delete_multiple(array_map([$this, 'getNamespacedId'], $keys));
+        return $this->do_delete_multiple(array_map([$this, 'get_namespaced_id'], $keys));
     }
     /**
      * {@inheritdoc}

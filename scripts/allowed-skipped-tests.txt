@@ -1,0 +1,9 @@
+# Exact PHPUnit skip allowlist (Class::method)
+Doctrine\Tests\Common\Cache\Array_Cache_Test::testDeleteAllAndNamespaceVersioningBetweenCaches
+Doctrine\Tests\Common\Cache\Array_Cache_Test::testFlushAllAndNamespaceVersioningBetweenCaches
+Doctrine\Tests\Common\Cache\Psr6\Doctrine_Provider_Test::testDeleteAllAndNamespaceVersioningBetweenCaches
+Doctrine\Tests\Common\Cache\Psr6\Doctrine_Provider_Test::testFlushAllAndNamespaceVersioningBetweenCaches
+Doctrine\Tests\Common\Cache\Psr6\Doctrine_Provider_Test::testGetStats
+Doctrine\Tests\Common\Cache\Psr6\Cache_Adapter_Test::testWithWrappedSymfonyCache
+Doctrine\Tests\Common\Cache\Psr6\Cache_Adapter_Test::testNamespacingFeatureIsPreservedWithSymfonyDoctrineProvider
+Doctrine\Tests\Common\Cache\Psr6\Doctrine_Provider_Test::testWithWrappedSymfonyCache
