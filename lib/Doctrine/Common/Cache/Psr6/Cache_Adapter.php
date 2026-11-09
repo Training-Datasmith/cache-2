@@ -44,12 +44,12 @@ final class Cache_Adapter implements CacheItemPoolInterface
         }
 
         if ($cache instanceof SymfonyDoctrineProvider && ! $cache->getNamespace()) {
-            $getPool = function () {
+            $get_pool = function () {
                 // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
                 return $this->pool;
             };
 
-            return $getPool->bindTo($cache, SymfonyDoctrineProvider::class)();
+            return $get_pool->bindTo($cache, SymfonyDoctrineProvider::class)();
         }
 
         return new self($cache);

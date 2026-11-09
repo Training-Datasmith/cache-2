@@ -38,12 +38,12 @@ final class Doctrine_Provider extends Cache_Provider
         }
 
         if ($pool instanceof SymfonyDoctrineAdapter) {
-            $getCache = function () {
+            $get_cache = function () {
                 // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
                 return $this->provider;
             };
 
-            return $getCache->bindTo($pool, SymfonyDoctrineAdapter::class)();
+            return $get_cache->bindTo($pool, SymfonyDoctrineAdapter::class)();
         }
 
         return new self($pool);
